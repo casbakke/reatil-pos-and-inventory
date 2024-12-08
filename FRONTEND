@@ -1,0 +1,168 @@
+package application;
+
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+public class Main extends Application implements EventHandler<ActionEvent> {
+
+    private TableView<RowData> invTable = new TableView<>();
+    private TableView<RowData> marginTable = new TableView<>();
+    private  TableView<SubtotalData> totalsTable = new TableView<>();
+    private Button button_pay, button_remove, button_quantity, button_UPC;
+
+    public void start(Stage primaryStage) {
+    	primaryStage.setTitle("Manager Window");
+        double buttonWidth = 100;
+        double buttonHeight = 50;
+        double rowHeight = 25; 
+        double tableHeight = (rowHeight * 17);
+        double tableWidth = 500;
+        double sceneWidth = tableWidth + buttonWidth + 100;
+        double sceneHeight = tableHeight + (rowHeight*6);
+        
+        //MARGIN TABLE
+        TableColumn<RowData, String> sys = new TableColumn<>("System");
+        TableColumn<RowData, String> user = new TableColumn<>("User");
+        TableColumn<RowData, Boolean> check = new TableColumn<>("Check");
+        //INV TABLE
+        TableColumn<RowData, String> item = new TableColumn<>("Item Name");
+        TableColumn<RowData, String> quantity = new TableColumn<>("Quantity");
+        TableColumn<RowData, Boolean> cost = new TableColumn<>("Price");
+        TableColumn<RowData, String> rowNum = new TableColumn<>();
+        //COST TABLE
+        TableColumn<SubtotalData, String> labelColumn = new TableColumn<>();
+        labelColumn.setCellValueFactory(new PropertyValueFactory<>("label"));      
+        TableColumn<SubtotalData, String> valueColumn = new TableColumn<>();
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+        
+        rowNum.setCellValueFactory(new PropertyValueFactory<>("rowNumber"));
+
+        //FOR INV
+        double columnWidth = (tableWidth-rowNum.getWidth()) / 3;
+        item.setPrefWidth(columnWidth);
+        quantity.setPrefWidth(columnWidth);
+        cost.setPrefWidth(columnWidth);
+        
+        sys.setPrefWidth(tableWidth/3);
+        user.setPrefWidth(tableWidth/3);
+        check.setPrefWidth(tableWidth/3);
+
+        marginTable.getColumns().addAll(sys, user, check);
+        marginTable.setPrefWidth(tableWidth);
+        RowData rowOne = new RowData(1, "System1", "User1", false);
+        marginTable.getItems().add(rowOne);
+        marginTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        marginTable.setPlaceholder(new Label(""));
+        marginTable.setPrefHeight(rowHeight*3);
+        
+        invTable.getColumns().addAll(rowNum, item, quantity, cost);
+        invTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        invTable.setPlaceholder(new Label(""));
+        
+        totalsTable.getColumns().addAll(labelColumn, valueColumn);
+        totalsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        totalsTable.setPlaceholder(new Label(""));
+        totalsTable.setPrefWidth(tableWidth);
+        totalsTable.setPrefHeight(rowHeight*3);
+        ObservableList<SubtotalData> subtotalData = FXCollections.observableArrayList(
+                new SubtotalData("Subtotal:", ""),
+                new SubtotalData("Estimated Tax:", ""),
+                new SubtotalData("Total:", "")
+            );
+        totalsTable.setItems(subtotalData);
+        
+        ObservableList<RowData> data = FXCollections.observableArrayList();
+        for (int i = 1; i <= 16; i++) {
+            data.add(new RowData(i, "System" + i, "User" + i, i % 2 == 0));
+        }
+
+        invTable.setItems(data);
+        invTable.setFixedCellSize(rowHeight);
+        invTable.setPrefHeight(tableHeight);
+        invTable.setPrefWidth(tableWidth);
+
+        //Set up the buttons
+        button_pay = new Button("Pay");
+        button_remove = new Button("Remove Item");
+        button_quantity = new Button("Edit Item\nQuantity");
+        button_UPC = new Button("Enter UPC");
+
+        //Set button sizes
+        button_pay.setPrefSize(buttonWidth, buttonHeight);
+        button_remove.setPrefSize(buttonWidth, buttonHeight);
+        button_quantity.setPrefSize(buttonWidth, buttonHeight);
+        button_UPC.setPrefSize(buttonWidth, buttonHeight);
+
+        //Add button event handlers
+        button_pay.setOnAction(this);
+        button_remove.setOnAction(this);
+        button_quantity.setOnAction(this);
+        button_UPC.setOnAction(this);
+
+        //Create VBox for buttons with spacing and padding
+        VBox btn_layout = new VBox(10); //Vertical layout for buttons with 10 units spacing
+        btn_layout.getChildren().addAll(button_pay, button_remove, button_quantity, button_UPC);
+        btn_layout.setPadding(new Insets(10, 10, 0, 0)); //Top, Right, Bottom, Left padding
+
+        
+        VBox table_layout = new VBox();
+        table_layout.getChildren().addAll(marginTable, invTable, totalsTable);
+        //Set up the layout
+        BorderPane layout = new BorderPane();
+        layout.setLeft(table_layout); //Add the table to the left side
+        layout.setRight(btn_layout); //Add buttons to the right side
+
+        //Set up the scene and show the stage
+        Scene scene = new Scene(layout, sceneWidth, sceneHeight); //Set the scene height to match the table height
+        String css = ".table-row-cell:empty { -fx-background-color: white; }\n" +
+                    ".table-row-cell:empty .table-cell { -fx-border-width: 0px; }";
+        scene.getStylesheets().add("data:," + css);  //Add the CSS to the scene
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        Pane header = (Pane) totalsTable.lookup("TableHeaderRow");
+        if (header != null) {
+            header.setVisible(false);
+            double headerHeight = header.getHeight();
+            totalsTable.setLayoutY(-headerHeight);
+            totalsTable.setPrefHeight(totalsTable.getHeight() + headerHeight);
+            totalsTable.autosize();  // Adjust sizing based on content
+            totalsTable.setPrefHeight(rowHeight*3);
+        }
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+        if (event.getSource() == button_pay) {
+            System.out.println("Pressed Pay");
+        }
+        if (event.getSource() == button_remove) {
+            System.out.println("Pressed Remove");
+        }
+        if (event.getSource() == button_quantity) {
+            System.out.println("Pressed Quantity");
+        }
+        if (event.getSource() == button_UPC) {
+            System.out.println("Pressed UPC");
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
