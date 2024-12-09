@@ -1,15 +1,17 @@
+package application;
+
 public class RowData {
     private final String rowNumber;
     private final String system;
     private final String user;
-    private final Boolean check;
+    private final String checkNum;
 
     // Constructor
-    public RowData(Integer rowNumber, String system, String user, Boolean check) {
+    public RowData(Integer rowNumber, String system, String user, String checkNum) {
         this.rowNumber = String.format("%02d", rowNumber);  // String for row number
         this.system = system;
         this.user = user;
-        this.check = check;
+        this.checkNum = checkNum;
     }
 
     // Getter for rowNumber
@@ -28,7 +30,7 @@ public class RowData {
     }
 
     // Getter for check
-    public Boolean getCheck() {
-        return check;
+    public String getCheck() {
+        return checkNum;
     }
 }

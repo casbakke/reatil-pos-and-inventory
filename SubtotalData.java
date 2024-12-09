@@ -1,6 +1,8 @@
+package application;
+
 public class SubtotalData {
-    private final String label;
-    private final String value;
+    private String label;
+    private String value;
 
     // Constructor
     public SubtotalData(String label, String value) {
