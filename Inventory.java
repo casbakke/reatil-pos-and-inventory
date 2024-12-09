@@ -2,6 +2,9 @@ package application;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import java.util.Random;
 
 class Inventory {
     static HashMap<String, Entry> inventory = new HashMap<String, Entry>();
@@ -20,35 +23,76 @@ class Inventory {
     }
     
     public static Check nextCheck() {
-    	return new Check(0); // placeholder
+    	return new Check(new Random().nextInt(999)+1); // random check number
     }
     
+    public static ObservableList<BodyData> getBodyDataOL(Check check) {
+    	ObservableList<BodyData> bd = FXCollections.observableArrayList();
+    	if (!check.data.isEmpty()) {
+	    	int i = 1;
+	    	for (String upc: check.data.keySet()) {
+	    		Entry entry = getEntry(upc);
+	    		String name = entry.name;
+	    		int quantity = check.data.get(upc);
+	    		double price = quantity * entry.price;
+	    		bd.add(new BodyData(i, name, quantity, price, upc));
+	    		i++;
+	    	}
+	    	
+    	}
+    	return bd;
+    }
+    
+    public static ObservableList<TotalsData> getTotalsDataOL(Check check) {
+    	ObservableList<TotalsData> td = FXCollections.observableArrayList();
+    	double subtotal = 0.0;
+    	if (!check.data.isEmpty()) {
+	    	for (String upc: check.data.keySet()) {
+	    		Entry entry = getEntry(upc);
+	    		int quantity = check.data.get(upc);
+	    		subtotal += quantity * entry.price;
+	    	}
+    	}
+    	double tax = subtotal * 0.0625;
+    	double total = subtotal + tax;
+ 
+    	td.add(new TotalsData("Subtotal:", String.format("%.2f", subtotal)));
+    	td.add(new TotalsData("Tax:", String.format("%.2f", tax)));
+    	td.add(new TotalsData("Total:", String.format("%.2f", total)));
+    	return td;
+    }
+    
+    
     public static class Check extends Inventory {
-    	public int checkNum;
-    	public HashMap<String, Integer> data;
+    	public String checkNum;
+    	public HashMap<String, Integer> data = new HashMap<String, Integer>();
     	public double subtotal;
     	public double tax;
     	public double total;
     	
     	Check(int checkNum) {
-    		this.checkNum = checkNum;
+    		this.checkNum = Integer.toString(checkNum);
     	}
     	
     	public String toString() {
     		String output = "";
     		for (String upc: this.data.keySet()) {
-    			output += ("UPC " + upc + "x" + this.data.get(upc) + "%n");
+    			output += ("UPC " + upc + "x" + this.data.get(upc) + "\n");
     		}
     		return output;
     	}
     	
-    	public void addItem(String upc) {
-    		Integer existingQuantity = data.get(upc);
-    		if (existingQuantity != null) {
-    			data.put(upc, existingQuantity + 1);
-    		} else {
-    			data.put(upc, 1);
+    	public boolean addItem(String upc) {
+    		boolean valid = (inventory.get(upc) != null);
+    		if (valid) {
+	    		Integer existingQuantity = data.get(upc);
+	    		if (existingQuantity != null) {
+	    			data.put(upc, existingQuantity + 1);
+	    		} else {
+	    			data.put(upc, 1);
+	    		}
     		}
+    		return valid;
     	}
     	
     	public void editQuantity(String upc, int newQuantity) {
@@ -60,8 +104,22 @@ class Inventory {
     		} else {
     			data.put(upc, newQuantity);
     		}
-    		// update price
     	}
+    	
+    	public void checkout() {
+    		for (String upc: this.data.keySet()) {
+    			int quantity = this.data.get(upc);
+    			itemSale(upc, quantity, this.checkNum);
+    		}
+    		System.out.println("Check " + this.checkNum + ":\n" + this.toString());
+    	}
+    	
+    	private static void itemSale(String upc, int quantitySold, String checkNum) {
+            Inventory.Entry entry = Inventory.getEntry(upc);
+        	entry.quantity -= quantitySold;
+        	entry.timeStampOfLastSale = Inventory.getTimeStamp();
+        	entry.checkNumOfLastSale = (checkNum);
+        }
     	
     	
     }
@@ -116,14 +174,6 @@ class Inventory {
             }
         }
 
-        public void sale(Check check, String checkNum) {
-            for (String upc : check.data.keySet()) {
-            	Integer quantitySold = check.data.get(upc);
-            	Inventory.Entry entry = Inventory.getEntry(upc);
-            	entry.quantity -= quantitySold;
-            	entry.timeStampOfLastSale = Inventory.getTimeStamp();
-            	entry.checkNumOfLastSale = (checkNum);
-            }
-        }
+    
     }
 }
