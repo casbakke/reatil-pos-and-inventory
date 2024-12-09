@@ -1,57 +1,34 @@
-package application;
-
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-
 public class RowData {
-    private final SimpleStringProperty rowNumber;
-    private final SimpleStringProperty system;
-    private final SimpleStringProperty user;
-    private final SimpleBooleanProperty check;
+    private final String rowNumber;
+    private final String system;
+    private final String user;
+    private final Boolean check;
 
     // Constructor
     public RowData(Integer rowNumber, String system, String user, Boolean check) {
-        this.rowNumber = new SimpleStringProperty(String.format("%02d", rowNumber));
-        this.system = new SimpleStringProperty(system);
-        this.user = new SimpleStringProperty(user);
-        this.check = new SimpleBooleanProperty(check);
+        this.rowNumber = String.format("%02d", rowNumber);  // String for row number
+        this.system = system;
+        this.user = user;
+        this.check = check;
     }
 
     // Getter for rowNumber
-    public SimpleStringProperty rowNumberProperty() {
+    public String getRowNumber() {
         return rowNumber;
     }
 
-    public String getRowNumber() {
-        return rowNumber.get();
-    }
-
     // Getter for system
-    public SimpleStringProperty systemProperty() {
+    public String getSystem() {
         return system;
     }
 
-    public String getSystem() {
-        return system.get();
-    }
-
     // Getter for user
-    public SimpleStringProperty userProperty() {
+    public String getUser() {
         return user;
     }
 
-    public String getUser() {
-        return user.get();
-    }
-
     // Getter for check
-    public SimpleBooleanProperty checkProperty() {
+    public Boolean getCheck() {
         return check;
     }
-
-    public Boolean getCheck() {
-        return check.get();
-    }
 }
-
-

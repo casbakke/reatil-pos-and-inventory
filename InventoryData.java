@@ -1,5 +1,4 @@
-package application;
-
+/**
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -37,4 +36,5 @@ public class InventoryData {
     public StringProperty column3Property() {
         return column3;
     }
-}
+ }
+ **/

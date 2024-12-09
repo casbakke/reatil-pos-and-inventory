@@ -1,35 +1,30 @@
-package application;
-
-import javafx.beans.property.SimpleStringProperty;
-
 public class SubtotalData {
-
-    private final SimpleStringProperty label;
-    private final SimpleStringProperty value;
+    private final String label;
+    private final String value;
 
     // Constructor
     public SubtotalData(String label, String value) {
-        this.label = new SimpleStringProperty(label);
-        this.value = new SimpleStringProperty(value);
+        this.label = label;
+        this.value = value;
     }
 
     // Getter for label
     public String getLabel() {
-        return label.get();
+        return label;
     }
 
     // Setter for label
     public void setLabel(String label) {
-        this.label.set(label);
+        this.label = label;
     }
 
     // Getter for value
     public String getValue() {
-        return value.get();
+        return value;
     }
 
     // Setter for value
     public void setValue(String value) {
-        this.value.set(value);
+        this.value = value;
     }
 }
