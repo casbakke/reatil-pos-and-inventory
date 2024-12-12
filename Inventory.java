@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.Random;
 
-class Inventory {
+abstract class Inventory {
     static HashMap<String, Entry> inventory = new HashMap<String, Entry>();
 
     public static Entry getEntry(String upc) {
